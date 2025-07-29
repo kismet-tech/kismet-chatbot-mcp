@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { defaultVectorStore } from "@/config/constants";
 
 type File = {
@@ -30,6 +30,10 @@ export type McpConfig = {
   skip_approval: boolean;
 };
 
+export type ConnectionStatus = "idle" | "connecting" | "connected" | "failed";
+
+export type ToolsValidationStatus = "idle" | "valid" | "error";
+
 interface StoreState {
   fileSearchEnabled: boolean;
   //previousFileSearchEnabled: boolean;
@@ -49,6 +53,15 @@ interface StoreState {
   setMcpEnabled: (enabled: boolean) => void;
   mcpConfig: McpConfig;
   setMcpConfig: (config: McpConfig) => void;
+  connectionStatus: ConnectionStatus;
+  setConnectionStatus: (status: ConnectionStatus) => void;
+  connectionError: string | null;
+  setConnectionError: (error: string | null) => void;
+  // Tools state (from custom-chat-element)
+  tools: any[];
+  setTools: (tools: any[]) => void;
+  toolsValidationStatus: ToolsValidationStatus;
+  setToolsValidationStatus: (status: ToolsValidationStatus) => void;
 }
 
 const useToolsStore = create<StoreState>()(
@@ -69,6 +82,13 @@ const useToolsStore = create<StoreState>()(
         allowed_tools: "",
         skip_approval: true,
       },
+      connectionStatus: "idle",
+      connectionError: null,
+      // Tools state
+      tools: [],
+      setTools: (tools) => set({ tools }),
+      toolsValidationStatus: "idle",
+      setToolsValidationStatus: (status) => set({ toolsValidationStatus: status }),
       fileSearchEnabled: false,
       previousFileSearchEnabled: false,
       setFileSearchEnabled: (enabled) => {
@@ -91,12 +111,31 @@ const useToolsStore = create<StoreState>()(
       setCodeInterpreterEnabled: (enabled) => {
         set({ codeInterpreterEnabled: enabled });
       },
-      setVectorStore: (store) => set({ vectorStore: store }),
-      setWebSearchConfig: (config) => set({ webSearchConfig: config }),
-      setMcpConfig: (config) => set({ mcpConfig: config }),
+      setVectorStore: (store) => {
+        set({ vectorStore: store });
+      },
+      setWebSearchConfig: (config) => {
+        set({ webSearchConfig: config });
+      },
+      setMcpConfig: (config) => {
+        set({ mcpConfig: config });
+      },
+      setConnectionStatus: (status) => {
+        set({ connectionStatus: status });
+      },
+      setConnectionError: (error) => {
+        set({ connectionError: error });
+      },
     }),
     {
       name: "tools-store",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        mcpConfig: state.mcpConfig,
+        mcpEnabled: state.mcpEnabled,
+        tools: state.tools,
+        toolsValidationStatus: state.toolsValidationStatus,
+      }),
     }
   )
 );
