@@ -15,6 +15,7 @@ export const getTools = () => {
     webSearchConfig,
     mcpEnabled,
     mcpConfig,
+    globalApprovalGranted,
   } = useToolsStore.getState();
 
   const tools = [];
@@ -31,7 +32,6 @@ export const getTools = () => {
     ) {
       webSearchTool.user_location = webSearchConfig.user_location;
     }
-
     tools.push(webSearchTool);
   }
 
@@ -66,20 +66,21 @@ export const getTools = () => {
     );
   }
 
-  if (mcpEnabled && mcpConfig.server_url && mcpConfig.server_label) {
+  // Add MCP tool (single object, not individual function definitions)
+  if (mcpEnabled && mcpConfig.server_url) {
     const mcpTool: any = {
       type: "mcp",
-      server_label: mcpConfig.server_label,
+      server_label: mcpConfig.server_label || "mcp-server",
       server_url: mcpConfig.server_url,
     };
-    if (mcpConfig.skip_approval) {
+    if (mcpConfig.skip_approval || globalApprovalGranted) {
       mcpTool.require_approval = "never";
     }
-    if (mcpConfig.allowed_tools.trim()) {
+    if (mcpConfig.allowed_tools?.trim()) {
       mcpTool.allowed_tools = mcpConfig.allowed_tools
         .split(",")
-        .map((t) => t.trim())
-        .filter((t) => t);
+        .map((t: string) => t.trim())
+        .filter((t: string) => t);
     }
     tools.push(mcpTool);
   }
