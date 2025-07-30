@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Star, MapPin } from 'lucide-react';
 // import { LoyaltyBadgeCycler } from '../shared/LoyaltyBadgeCycler';
+import { proxyImageUrls } from '../../../lib/utils/imageProxy';
 
 // Simple hotel interface (from HotelCarousel)
 interface SimpleHotel {
@@ -132,7 +133,7 @@ function normalizeHotelData(hotel: Hotel): {
       description: simpleHotel.description,
       starRating: simpleHotel.starRating,
       address: simpleHotel.address,
-      image: simpleHotel.image,
+      image: proxyImageUrls(simpleHotel.image),
       aggregateRating: simpleHotel.aggregateRating,
       reviewCount: '0', // Simple hotels don't have review count
       nightlyPrice: simpleHotel.nightlyPrice,
@@ -148,7 +149,7 @@ function normalizeHotelData(hotel: Hotel): {
     description: complexHotel.description,
     starRating: parseInt(complexHotel.starRating.ratingValue),
     address: complexHotel.address.addressLocality,
-    image: complexHotel.image,
+    image: proxyImageUrls(complexHotel.image),
     aggregateRating: parseFloat(complexHotel.aggregateRating.ratingValue),
     reviewCount: complexHotel.aggregateRating.reviewCount,
     nightlyPrice: complexHotel.nightlyPrice,
