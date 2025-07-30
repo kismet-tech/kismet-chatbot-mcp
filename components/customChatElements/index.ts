@@ -16,5 +16,8 @@ export { DestinationCarousel } from './destinationCarousel/DestinationCarousel';
 // Hotel rooms components
 export { HotelRoomsCarousel } from './hotelRooms/HotelRoomsCarousel';
 
+// Social media feed components
+export { SocialMediaFeed } from './socialMediaFeed/SocialMediaFeed';
+
 // Shared components
 export { LoyaltyBadgeCycler } from './shared/LoyaltyBadgeCycler'; 

@@ -69,14 +69,6 @@ export function HotelRoomsCarousel({ rooms, theme = { radius: '8px', background:
   }
   
   const currentImageIndex = 0 // For now, just show first image
-  
-  // Debug logging to see what URLs we're getting
-  console.log('HotelRoomsCarousel Debug:', {
-    roomName: room.name,
-    originalImages: room.image,
-    proxiedImages: roomImages,
-    currentImageUrl: roomImages[currentImageIndex]
-  });
 
   return (
     <div className="relative mb-12">

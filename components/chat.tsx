@@ -14,6 +14,7 @@ import { HotelCarousel } from "./customChatElements/hotelCarousel/HotelCarousel"
 import { PriceComparison } from "./customChatElements/priceComparison/PriceComparison";
 import { DestinationCarousel } from "./customChatElements/destinationCarousel/DestinationCarousel";
 import { HotelRoomsCarousel } from "./customChatElements/hotelRooms/HotelRoomsCarousel";
+import { SocialMediaFeed } from "./customChatElements/socialMediaFeed/SocialMediaFeed";
 
 interface ChatProps {
   items: Item[];
@@ -120,6 +121,18 @@ const Chat: React.FC<ChatProps> = ({
                 ) : item.type === "hotel_rooms" ? (
                   <CustomChatElementContainer>
                     <HotelRoomsCarousel rooms={item.rooms} />
+                  </CustomChatElementContainer>
+                ) : item.type === "social_media_feed" ? (
+                  <CustomChatElementContainer>
+                    <SocialMediaFeed posts={(item.posts || []).map((post: any) => ({
+                      id: post.id,
+                      avatar: post.avatar || '',
+                      username: post.username || 'Unknown',
+                      timestamp: post.timestamp || '',
+                      content: post.content || '',
+                      image: post.image_url || post.image || undefined,
+                      platform: post.platform || undefined,
+                    }))} />
                   </CustomChatElementContainer>
                 ) : null}
               </React.Fragment>

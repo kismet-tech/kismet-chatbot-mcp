@@ -1,0 +1,1 @@
+export { SocialMediaFeed } from './SocialMediaFeed'; 
