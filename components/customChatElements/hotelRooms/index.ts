@@ -1,0 +1,1 @@
+export { HotelRoomsCarousel } from './HotelRoomsCarousel'; 

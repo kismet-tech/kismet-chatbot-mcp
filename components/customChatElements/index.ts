@@ -13,5 +13,8 @@ export { getLoyaltyBadgeUrl, hasLoyaltyBadge } from './hotelCarousel/loyaltyBadg
 // Destination carousel components
 export { DestinationCarousel } from './destinationCarousel/DestinationCarousel';
 
+// Hotel rooms components
+export { HotelRoomsCarousel } from './hotelRooms/HotelRoomsCarousel';
+
 // Shared components
 export { LoyaltyBadgeCycler } from './shared/LoyaltyBadgeCycler'; 

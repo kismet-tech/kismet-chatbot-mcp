@@ -13,6 +13,7 @@ import { CustomChatElementContainer } from "./customChatElements/CustomChatEleme
 import { HotelCarousel } from "./customChatElements/hotelCarousel/HotelCarousel";
 import { PriceComparison } from "./customChatElements/priceComparison/PriceComparison";
 import { DestinationCarousel } from "./customChatElements/destinationCarousel/DestinationCarousel";
+import { HotelRoomsCarousel } from "./customChatElements/hotelRooms/HotelRoomsCarousel";
 
 interface ChatProps {
   items: Item[];
@@ -116,6 +117,10 @@ const Chat: React.FC<ChatProps> = ({
                     image: dest.image_url || "",
                     activities: dest.activities || []
                   }))} />
+                ) : item.type === "hotel_rooms" ? (
+                  <CustomChatElementContainer>
+                    <HotelRoomsCarousel rooms={item.rooms} />
+                  </CustomChatElementContainer>
                 ) : null}
               </React.Fragment>
             ))}

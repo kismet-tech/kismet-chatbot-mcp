@@ -146,6 +146,33 @@ export interface SocialMediaFeedItem {
   }[];
 }
 
+export interface HotelRoomsItem {
+  type: "hotel_rooms";
+  id: string;
+  rooms: {
+    name: string;
+    description: string;
+    occupancy: {
+      maxValue: number;
+      unitText: string;
+    };
+    bed: {
+      typeOfBed: string;
+    };
+    floorSize: {
+      value: number;
+      unitText: string;
+    };
+    price: {
+      price: string;
+      priceCurrency: string;
+    };
+    amenityFeature: string[];
+    image: string[];
+    suggestedNextActions: string[];
+  }[];
+}
+
 export type Item =
   | MessageItem
   | ToolCallItem
@@ -154,7 +181,8 @@ export type Item =
   | HotelListItem
   | PriceComparisonItem
   | DestinationListItem
-  | SocialMediaFeedItem;
+  | SocialMediaFeedItem
+  | HotelRoomsItem;
 
 export const handleTurn = async (
   messages: any[],
@@ -617,6 +645,57 @@ export const processMessages = async () => {
                 console.log("✅ Added SocialMediaFeedItem to chatMessages with", posts.length, "posts");
               } else {
                 console.log("No valid social media posts found in output");
+              }
+              break;
+            }
+            
+            case "show_hotel_rooms_at_hotel": {
+              let rooms = [];
+              if (item.output) {
+                // Try to parse rooms data from different possible formats
+                if (typeof item.output === 'string') {
+                  try {
+                    rooms = JSON.parse(item.output);
+                  } catch (e) {
+                    console.error("Failed to parse hotel rooms data from string:", e);
+                  }
+                } else if (item.output && typeof item.output === 'object') {
+                  // Check if output has content array (MCP format)
+                  if (Array.isArray(item.output.content)) {
+                    // Try to parse the text content
+                    const textContent = item.output.content.find((c: any) => c.type === 'text');
+                    if (textContent && textContent.text) {
+                      try {
+                        rooms = JSON.parse(textContent.text);
+                      } catch (e) {
+                        console.error("Failed to parse hotel rooms data from MCP content:", e);
+                      }
+                    }
+                  } else if (Array.isArray(item.output)) {
+                    // Direct array of rooms
+                    rooms = item.output;
+                  }
+                }
+              }
+              
+              if (Array.isArray(rooms) && rooms.length > 0) {
+                // Debug: Log the first room structure to understand the data format
+                console.log("🔧 Room data structure:", rooms[0]);
+                console.log("🔧 Room image type:", typeof rooms[0]?.image);
+                console.log("🔧 Room image value:", rooms[0]?.image);
+                
+                // Create hotel rooms item
+                const hotelRoomsItem: HotelRoomsItem = {
+                  type: "hotel_rooms",
+                  id: item.id,
+                  rooms: rooms,
+                };
+                
+                chatMessages.push(hotelRoomsItem);
+                setChatMessages([...chatMessages]);
+                console.log("✅ Added HotelRoomsItem to chatMessages with", rooms.length, "rooms");
+              } else {
+                console.log("No valid hotel rooms found in output");
               }
               break;
             }
