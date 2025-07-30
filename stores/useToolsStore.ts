@@ -93,7 +93,6 @@ const useToolsStore = create<StoreState>()(
       toolsValidationStatus: "idle",
       setToolsValidationStatus: (status) => set({ toolsValidationStatus: status }),
       fileSearchEnabled: false,
-      previousFileSearchEnabled: false,
       setFileSearchEnabled: (enabled) => {
         set({ fileSearchEnabled: enabled });
       },
@@ -102,7 +101,6 @@ const useToolsStore = create<StoreState>()(
         set({ webSearchEnabled: enabled });
       },
       functionsEnabled: false,
-      previousFunctionsEnabled: true,
       setFunctionsEnabled: (enabled) => {
         set({ functionsEnabled: enabled });
       },
@@ -142,6 +140,11 @@ const useToolsStore = create<StoreState>()(
         mcpConfig: state.mcpConfig,
         mcpEnabled: state.mcpEnabled,
         functionsEnabled: state.functionsEnabled,
+        fileSearchEnabled: state.fileSearchEnabled,
+        webSearchEnabled: state.webSearchEnabled,
+        codeInterpreterEnabled: state.codeInterpreterEnabled,
+        vectorStore: state.vectorStore,
+        webSearchConfig: state.webSearchConfig,
         tools: state.tools,
         toolsValidationStatus: state.toolsValidationStatus,
         globalApprovalGranted: state.globalApprovalGranted,
