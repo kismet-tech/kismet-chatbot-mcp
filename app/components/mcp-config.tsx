@@ -2,9 +2,9 @@
 import React, { useState } from "react";
 import useToolsStore from "@/stores/useToolsStore";
 import useConversationStore from "@/stores/useConversationStore";
-import { Input } from "./ui/input";
-import { Switch } from "./ui/switch";
-import { Button } from "./ui/button";
+import { Input } from "../../components/ui/input";
+import { Switch } from "../../components/ui/switch";
+import { Button } from "../../components/ui/button";
 import { Loader2, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronRight, Code } from "lucide-react";
 
 export default function McpConfig() {
@@ -18,7 +18,10 @@ export default function McpConfig() {
     tools,
     setTools,
     toolsValidationStatus,
-    setToolsValidationStatus
+    setToolsValidationStatus,
+    globalApprovalGranted,
+    mcpEnabled,
+    setMcpEnabled
   } = useToolsStore();
 
   const { addChatMessage } = useConversationStore();
@@ -72,20 +75,49 @@ export default function McpConfig() {
 
     try {
       // Discover tools through OpenAI API (this is how it actually works)
-      const tools = [
-        {
+      const tools = [];
+
+      if (mcpEnabled && mcpConfig.server_url && mcpConfig.server_label) {
+        const mcpTool: any = {
+          type: "mcp",
+          server_label: mcpConfig.server_label,
+          server_url: mcpConfig.server_url,
+        };
+        
+        if (mcpConfig.skip_approval || globalApprovalGranted) {
+          mcpTool.require_approval = "never";
+        }
+        
+        if (mcpConfig.allowed_tools.trim()) {
+          mcpTool.allowed_tools = mcpConfig.allowed_tools
+            .split(",")
+            .map((t) => t.trim())
+            .filter((t) => t);
+        }
+        tools.push(mcpTool);
+      } else if (mcpEnabled && mcpConfig.server_url) {
+        // If server URL is provided but no label, use a default label
+        const mcpTool: any = {
           type: "mcp",
           server_label: mcpConfig.server_label || "mcp-server",
           server_url: mcpConfig.server_url,
-          require_approval: mcpConfig.skip_approval ? "never" : "always",
-          ...(mcpConfig.allowed_tools.trim() && {
-            allowed_tools: mcpConfig.allowed_tools
-              .split(",")
-              .map((t) => t.trim())
-              .filter((t) => t)
-          })
+        };
+        
+        if (mcpConfig.skip_approval || globalApprovalGranted) {
+          mcpTool.require_approval = "never";
         }
-      ];
+        
+        if (mcpConfig.allowed_tools.trim()) {
+          mcpTool.allowed_tools = mcpConfig.allowed_tools
+            .split(",")
+            .map((t) => t.trim())
+            .filter((t) => t);
+        }
+        tools.push(mcpTool);
+      }
+
+      console.log("🔧 Sending tools to OpenAI API:", tools);
+      console.log("🔧 MCP State:", { mcpEnabled, server_url: mcpConfig.server_url, server_label: mcpConfig.server_label });
 
       const toolsDiscoveryResponse = await fetch("/api/turn_response", {
         method: "POST",
@@ -272,6 +304,29 @@ export default function McpConfig() {
                 Please enter a valid URL
               </div>
             )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label htmlFor="mcp_enabled" className="text-sm w-24">
+            Enable MCP
+          </label>
+          <div className="flex items-center gap-2">
+            <Switch
+              id="mcp_enabled"
+              checked={mcpEnabled}
+              onCheckedChange={(checked) => {
+                setMcpEnabled(checked);
+                // Reset connection status when MCP is toggled
+                if (connectionStatus !== "idle") {
+                  setConnectionStatus("idle");
+                  setConnectionError(null);
+                }
+              }}
+            />
+            <span className="text-xs text-zinc-500">
+              {mcpEnabled ? "Enabled" : "Disabled"}
+            </span>
           </div>
         </div>
 

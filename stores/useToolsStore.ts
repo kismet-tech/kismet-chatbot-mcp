@@ -62,6 +62,9 @@ interface StoreState {
   setTools: (tools: any[]) => void;
   toolsValidationStatus: ToolsValidationStatus;
   setToolsValidationStatus: (status: ToolsValidationStatus) => void;
+  // Global approval state (from custom-chat-element)
+  globalApprovalGranted: boolean;
+  setGlobalApprovalGranted: (granted: boolean) => void;
 }
 
 const useToolsStore = create<StoreState>()(
@@ -126,6 +129,11 @@ const useToolsStore = create<StoreState>()(
       setConnectionError: (error) => {
         set({ connectionError: error });
       },
+      // Global approval state
+      globalApprovalGranted: false,
+      setGlobalApprovalGranted: (granted) => {
+        set({ globalApprovalGranted: granted });
+      },
     }),
     {
       name: "tools-store",
@@ -135,6 +143,7 @@ const useToolsStore = create<StoreState>()(
         mcpEnabled: state.mcpEnabled,
         tools: state.tools,
         toolsValidationStatus: state.toolsValidationStatus,
+        globalApprovalGranted: state.globalApprovalGranted,
       }),
     }
   )

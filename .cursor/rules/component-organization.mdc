@@ -1,0 +1,364 @@
+---
+description: 
+globs: *.tsx
+alwaysApply: false
+---
+
+---
+
+description: Component organization and folder structure for maintainable React components
+globs: frontend/src/components/**/\*.tsx, frontend/src/app/**/\*.tsx
+alwaysApply: true
+
+---
+
+# Component Organization and Folder Structure
+
+## **Core Principles**
+
+1. **Page Discoverability First**: You should be able to find a component by following the URL structure
+2. **URL-Based Organization**: Page-specific components live near their pages for easy discovery
+3. **Shared Components**: Only truly reusable components go in global `/components` folder
+4. **Multi-Component Grouping**: Components with multiple subcomponents get organized in folders
+
+## **Organization Hierarchy (Priority Order)**
+
+### **1. Page-Specific Components (HIGHEST PRIORITY)**
+
+- ✅ **DO**: Place page-specific components in a `components/` folder next to the page
+
+```
+app/
+  admin/
+    deployments/
+      page.tsx                     // Main deployments page
+      components/                  // Page-specific components
+        ClientDeploymentsList.tsx  // Easy to find: "deployments page components"
+        DeploymentFilters.tsx
+        DeploymentStats.tsx
+      versions/
+        page.tsx                   // Script versions page
+        components/                // Page-specific components
+          ScriptVersionsList.tsx   // Easy to find: "versions page components"
+          VersionCreator.tsx
+```
+
+### **2. Shared Components (SECOND PRIORITY)**
+
+- ✅ **DO**: Place truly reusable components in global `/components` folder **ONLY if used across multiple app sections**
+
+```
+components/
+  ui/                             // Basic UI components used everywhere
+    Button.tsx                    // Used across entire app
+    Modal.tsx                     // Base modal used everywhere
+    Input.tsx                     // Used across entire app
+  common/                         // Business components used across app sections
+    UserAvatar.tsx                // Used in admin, client portal, etc.
+    NotificationBell.tsx          // Used in multiple app areas
+```
+
+### **3. Multi-Component Grouping (THIRD PRIORITY)**
+
+- ✅ **DO**: Create subfolders when a component has multiple subcomponents
+
+```
+app/admin/deployments/components/
+  ClientDeploymentsList/          // Has multiple subcomponents
+    index.tsx                     // Main component
+    DeploymentTable.tsx           // Subcomponent
+    WorkflowModal.tsx             // Subcomponent
+    EmptyState.tsx                // Subcomponent
+```
+
+## **Decision Tree for Component Placement**
+
+### **Step 1: Is it page-specific?**
+
+- **YES** → Place in `app/[route]/components/`
+- **NO** → Go to Step 2
+
+### **Step 2: Is it shared across multiple pages/routes?**
+
+- **YES** → Place in global `components/` folder
+- **NO** → Go back to Step 1 (it's probably page-specific)
+
+### **Step 3: Does it have multiple subcomponents?**
+
+- **YES** → Create subfolder with `index.tsx`
+- **NO** → Keep as single file
+
+## **URL-to-Component Mapping Examples**
+
+### **✅ GOOD: Easy to Find**
+
+```
+URL: /admin/deployments
+Page: app/admin/deployments/page.tsx
+Components: app/admin/deployments/components/
+  ├── DeploymentManagementInterface.tsx  ← Controls main deployment interface
+  ├── DeploymentManagerNav.tsx           ← Navigation used across deployment pages
+  ├── CreateVersionModal.tsx             ← Modal used across deployment pages
+  └── DeploymentClientTable.tsx          ← Controls client table
+
+URL: /admin/deployments/versions
+Page: app/admin/deployments/versions/page.tsx
+Components: app/admin/deployments/versions/components/
+  └── ScriptVersionsInterface.tsx        ← Controls script versions list
+```
+
+### **❌ BAD: Hard to Find**
+
+```
+URL: /admin/deployments/versions
+Page: app/admin/deployments/versions/page.tsx
+Components: components/admin/DeploymentManager/ScriptVersionsInterface.tsx
+  ↑ You can't find this by following the URL!
+
+URL: /admin/deployments
+Page: app/admin/deployments/page.tsx
+Components: components/admin/DeploymentManagerNav.tsx
+  ↑ This is only used on deployment pages - why is it in global components?
+```
+
+## **Naming Conventions for Discoverability**
+
+### **Page Component Names**
+
+- Use descriptive names that match the page purpose
+- ✅ **DO**: `ScriptVersionsList.tsx` (clear what it does)
+- ❌ **DON'T**: `ScriptVersionsInterface.tsx` (unclear, sounds like a type)
+
+### **Component File Structure**
+
+```
+app/admin/deployments/
+  page.tsx                        // Entry point - imports from ./components
+  components/
+    ClientDeploymentsList.tsx     // Main feature component
+    DeploymentFilters.tsx         // Supporting component
+    DeploymentStats.tsx           // Supporting component
+```
+
+## **Import Patterns for Discoverability**
+
+### **Page Imports (Local Components)**
+
+```typescript
+// ✅ DO: Import from local components folder
+import DeploymentManagementInterface from "./components/DeploymentManagementInterface";
+import DeploymentManagerNav from "./components/DeploymentManagerNav";
+
+// ✅ DO: Import from sibling route components (shared within feature)
+import DeploymentManagerNav from "../components/DeploymentManagerNav";
+import CreateVersionModal from "../../components/CreateVersionModal";
+```
+
+### **Shared Component Imports (Truly Global)**
+
+```typescript
+// ✅ DO: Import truly shared components from global location
+import Button from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
+import UserAvatar from "@/components/common/UserAvatar";
+```
+
+### **❌ DON'T: Put Feature-Specific Components in Global**
+
+```typescript
+// ❌ BAD: These are only used on deployment pages
+import { DeploymentManagerNav } from "@/components/admin/DeploymentManagerNav";
+import { CreateVersionModal } from "@/components/admin/CreateVersionModal";
+
+// ✅ GOOD: Keep them local to the feature
+import DeploymentManagerNav from "./components/DeploymentManagerNav";
+import CreateVersionModal from "./components/CreateVersionModal";
+```
+
+## **Examples**
+
+### **✅ GOOD: Discoverable Organization**
+
+```
+app/
+  admin/
+    deployments/
+      page.tsx                    // "I want to edit the deployments page"
+      components/                 // "Components are right here!"
+        DeploymentManagementInterface.tsx // "This controls the main interface"
+        DeploymentManagerNav.tsx  // "Shared across deployment pages only"
+        CreateVersionModal.tsx    // "Shared across deployment pages only"
+        DeploymentClientTable.tsx // "This controls the client table"
+      versions/
+        page.tsx                  // "I want to edit the versions page"
+        components/               // "Components are right here!"
+          ScriptVersionsInterface.tsx  // "This controls the versions list"
+
+components/
+  ui/
+    Button.tsx                    // Used across entire app
+    Modal.tsx                     // Base modal used everywhere
+  common/
+    UserAvatar.tsx                // Used in admin, client portal, etc.
+```
+
+### **❌ BAD: Hard to Discover**
+
+```
+components/
+  admin/
+    DeploymentManagerNav.tsx      // Only used on deployment pages - should be local!
+    CreateVersionModal.tsx        // Only used on deployment pages - should be local!
+  DeploymentManager/
+    ScriptVersionsInterface.tsx   // Hard to find from URL
+    ClientDeployments/
+      index.tsx                   // Unclear which page this serves
+```
+
+## **Migration Strategy**
+
+When you can't find a component:
+
+1. **Start with the URL**: `/admin/deployments/versions`
+2. **Find the page**: `app/admin/deployments/versions/page.tsx`
+3. **Look for components folder**: `app/admin/deployments/versions/components/`
+4. **If not there, check shared**: `components/admin/`
+
+## **Benefits of This Approach**
+
+- **Instant Discoverability**: Follow URL → Find page → Find components
+- **Logical Grouping**: Related functionality stays together
+- **Clear Ownership**: Each page owns its specific components
+- **Maintainable**: Easy to understand what each component does
+- **Scalable**: New pages get their own component space
+
+## **When to Break the Rules**
+
+- **Micro-components**: Very small helper components can stay in the same file
+- **Legacy code**: Don't reorganize working code unless you're actively working on it
+- **Third-party patterns**: Follow established patterns for libraries (like Next.js app router)
+
+## **Folder Structure Rules**
+
+### **Single Component Files**
+
+- ✅ **DO**: Use single files for simple, standalone components
+
+```
+components/
+  Button.tsx
+  Input.tsx
+  Modal.tsx
+```
+
+### **Multi-Component Features**
+
+- ✅ **DO**: Create folders when a component has multiple subcomponents
+
+```
+components/
+  DeploymentManager/
+    index.tsx                    // Main component export
+    DeploymentManagerNav.tsx     // Navigation subcomponent
+    DeploymentTable.tsx          // Table subcomponent
+    DeploymentModal.tsx          // Modal subcomponent
+```
+
+### **Nested Subcomponents**
+
+- ✅ **DO**: Create nested folders when subcomponents have their own subcomponents
+
+```
+components/
+  DeploymentManager/
+    index.tsx
+    DeploymentTable/
+      index.tsx                  // Main table component
+      TableHeader.tsx            // Table header subcomponent
+      TableRow.tsx               // Table row subcomponent
+      TableFilters.tsx           // Filters subcomponent
+    DeploymentModal/
+      index.tsx                  // Main modal component
+      ModalHeader.tsx            // Modal header subcomponent
+      ModalForm.tsx              // Form subcomponent
+      ModalFooter.tsx            // Footer subcomponent
+```
+
+### **Page-Specific Components**
+
+- ✅ **DO**: Group page-specific components in folders named after the page
+
+```
+app/
+  admin/
+    deployments/
+      page.tsx                   // Main page component
+      components/               // Page-specific components folder
+        DeploymentStats.tsx
+        ClientTable.tsx
+        VersionSelector.tsx
+```
+
+## **Naming Conventions**
+
+### **Folder Names**
+
+- Use PascalCase for component folders: `DeploymentManager/`, `UserProfile/`
+- Use kebab-case for page component folders: `components/`, `utils/`
+
+### **File Names**
+
+- Main component: `index.tsx` (exports the primary component)
+- Subcomponents: `ComponentName.tsx` (descriptive, specific names)
+
+### **Export Patterns**
+
+```typescript
+// ✅ DO: Main component in index.tsx
+// components/DeploymentManager/index.tsx
+export { default } from "./DeploymentManager";
+
+// ✅ DO: Named exports for subcomponents
+// components/DeploymentManager/DeploymentManager.tsx
+export { DeploymentManagerNav } from "./DeploymentManagerNav";
+export { DeploymentTable } from "./DeploymentTable";
+```
+
+## **Import Patterns**
+
+### **Importing from Folders**
+
+```typescript
+// ✅ DO: Import main component from folder
+import DeploymentManager from "@/components/DeploymentManager";
+
+// ✅ DO: Import subcomponents when needed externally
+import { DeploymentTable } from "@/components/DeploymentManager/DeploymentTable";
+```
+
+### **Internal Imports**
+
+```typescript
+// ✅ DO: Relative imports within the same feature folder
+import { DeploymentTable } from "./DeploymentTable";
+import { DeploymentModal } from "./DeploymentModal";
+```
+
+## **Benefits of This Structure**
+
+- **Maintainability**: Related components are grouped together
+- **Scalability**: Easy to add new subcomponents without cluttering
+- **Discoverability**: Clear hierarchy shows component relationships
+- **Reusability**: Subcomponents can be easily extracted if needed
+- **Testing**: Test files can be co-located with components
+
+## **Migration Strategy**
+
+When refactoring existing flat structures:
+
+1. Identify components with multiple subcomponents
+2. Create folders for these component groups
+3. Move related files into appropriate folders
+4. Update import statements
+5. Add index.tsx files for clean exports
+6. Test that all imports still work correctly

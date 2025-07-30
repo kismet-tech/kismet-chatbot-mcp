@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import Chat from "./chat";
+import Chat from "../../components/chat";
 import useConversationStore from "@/stores/useConversationStore";
 import { Item, processMessages } from "@/lib/assistant";
 

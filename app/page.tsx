@@ -1,6 +1,6 @@
 "use client";
-import Assistant from "@/components/assistant";
-import ToolsPanel from "@/components/tools-panel";
+import Assistant from "./components/assistant";
+import ToolsPanel from "./components/tools-panel";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 

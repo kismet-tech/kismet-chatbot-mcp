@@ -1,0 +1,1 @@
+export { DestinationCarousel } from './DestinationCarousel'; 

@@ -5,6 +5,9 @@ import useConversationStore from "@/stores/useConversationStore";
 import { getTools } from "./tools/tools";
 import { Annotation } from "@/components/annotations";
 import { functionsMap } from "@/config/functions";
+import { HotelCarousel } from "../components/customChatElements/hotelCarousel/HotelCarousel";
+import { PriceComparison } from "../components/customChatElements/priceComparison/PriceComparison";
+import { DestinationCarousel } from "../components/customChatElements/destinationCarousel/DestinationCarousel";
 
 const normalizeAnnotation = (annotation: any): Annotation => ({
   ...annotation,
@@ -66,11 +69,75 @@ export interface McpApprovalRequestItem {
   arguments?: string;
 }
 
+export interface HotelListItem {
+  type: "hotel_list";
+  id: string;
+  hotels: {
+    id: string;
+    name: string;
+    location: string;
+    price: number;
+    rating: number;
+    image_url?: string;
+    amenities?: string[];
+    booking_url?: string;
+  }[];
+}
+
+export interface PriceComparisonItem {
+  type: "price_comparison_list";
+  id: string;
+  hotel_name: string;
+  location: string;
+  dates: {
+    check_in: string;
+    check_out: string;
+  };
+  prices: {
+    provider: string;
+    price: number;
+    booking_url: string;
+    logo_url?: string;
+  }[];
+}
+
+export interface DestinationListItem {
+  type: "destination_list";
+  id: string;
+  destinations: {
+    id: string;
+    name: string;
+    description: string;
+    image_url?: string;
+    activities?: string[];
+  }[];
+}
+
+export interface SocialMediaFeedItem {
+  type: "social_media_feed";
+  id: string;
+  posts: {
+    id: string;
+    platform: string;
+    content: string;
+    image_url?: string;
+    engagement: {
+      likes: number;
+      comments: number;
+      shares: number;
+    };
+  }[];
+}
+
 export type Item =
   | MessageItem
   | ToolCallItem
   | McpListToolsItem
-  | McpApprovalRequestItem;
+  | McpApprovalRequestItem
+  | HotelListItem
+  | PriceComparisonItem
+  | DestinationListItem
+  | SocialMediaFeedItem;
 
 export const handleTurn = async (
   messages: any[],

@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import FileSearchSetup from "./file-search-setup";
-import WebSearchConfig from "./websearch-config";
-import FunctionsView from "./functions-view";
+import FileSearchSetup from "../../components/file-search-setup";
+import WebSearchConfig from "../../components/websearch-config";
+import FunctionsView from "../../components/functions-view";
 import McpConfig from "./mcp-config";
-import PanelConfig from "./panel-config";
+import PanelConfig from "../../components/panel-config";
 import useToolsStore from "@/stores/useToolsStore";
 
 export default function ContextPanel() {
