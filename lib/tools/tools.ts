@@ -85,7 +85,14 @@ export const getTools = () => {
     tools.push(mcpTool);
   }
 
-  console.log("tools", tools);
+  console.log("🔧 MCP State:", {
+    mcpEnabled,
+    server_url: mcpConfig.server_url,
+    server_label: mcpConfig.server_label,
+    globalApprovalGranted,
+  });
+  console.log("🔧 Functions Enabled:", functionsEnabled);
+  console.log("🔧 Sending tools to OpenAI API:", tools);
 
   return tools;
 };

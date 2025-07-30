@@ -379,32 +379,261 @@ export const processMessages = async () => {
       }
 
       case "response.output_item.done": {
-        // After output item is done, adding tool call ID
         const { item } = data || {};
-        const toolCallMessage = chatMessages.find((m) => m.id === item.id);
-        if (toolCallMessage && toolCallMessage.type === "tool_call") {
-          toolCallMessage.call_id = item.call_id;
-          setChatMessages([...chatMessages]);
+        console.log("🔧 response.output_item.done", item);
+        
+        // Handle MCP tool completion
+        if (item.type === "mcp_call") {
+          console.log("🔧 MCP tool completed:", item.name);
+          console.log("🔧 MCP tool output:", item.output);
+          
+          // Process tool output based on tool name (like custom-chat-element)
+          switch (item.name) {
+            case "find_hotel_by_query": {
+              let hotels = [];
+              if (item.output) {
+                // Try to parse hotels data from different possible formats
+                if (typeof item.output === 'string') {
+                  try {
+                    hotels = JSON.parse(item.output);
+                  } catch (e) {
+                    console.error("Failed to parse hotel data from string:", e);
+                  }
+                } else if (item.output && typeof item.output === 'object') {
+                  // Check if output has content array (MCP format)
+                  if (Array.isArray(item.output.content)) {
+                    // Try to parse the text content
+                    const textContent = item.output.content.find((c: any) => c.type === 'text');
+                    if (textContent && textContent.text) {
+                      try {
+                        hotels = JSON.parse(textContent.text);
+                      } catch (e) {
+                        console.error("Failed to parse hotel data from MCP content:", e);
+                      }
+                    }
+                  } else if (Array.isArray(item.output)) {
+                    // Direct array of hotels
+                    hotels = item.output;
+                  }
+                }
+              }
+              
+              if (Array.isArray(hotels) && hotels.length > 0) {
+                // Create hotel list item
+                const hotelListItem: HotelListItem = {
+                  type: "hotel_list",
+                  id: item.id,
+                  hotels: hotels,
+                };
+                
+                chatMessages.push(hotelListItem);
+                setChatMessages([...chatMessages]);
+                console.log("✅ Added HotelListItem to chatMessages with", hotels.length, "hotels");
+              } else {
+                console.log("No valid hotels found in output");
+              }
+              break;
+            }
+            
+            case "book_hotel": {
+              let priceComparisons = [];
+              let hotelName = "Hotel";
+              let hotelLocation = "";
+              let checkInDate = "";
+              let checkOutDate = "";
+              
+              if (item.output) {
+                // Try to parse price comparison data from different possible formats
+                if (typeof item.output === 'string') {
+                  try {
+                    const parsed = JSON.parse(item.output);
+                    // Handle new structured response
+                    if (parsed.priceComparisons && Array.isArray(parsed.priceComparisons)) {
+                      priceComparisons = parsed.priceComparisons;
+                      hotelName = parsed.hotelName || "Hotel";
+                      hotelLocation = parsed.hotelLocation || "";
+                      checkInDate = parsed.checkInDate || "";
+                      checkOutDate = parsed.checkOutDate || "";
+                    } else {
+                      // Fallback to old format
+                      priceComparisons = parsed;
+                    }
+                  } catch (e) {
+                    console.error("Failed to parse price comparison data from string:", e);
+                  }
+                } else if (item.output && typeof item.output === 'object') {
+                  // Check if output has content array (MCP format)
+                  if (Array.isArray(item.output.content)) {
+                    // Try to parse the text content
+                    const textContent = item.output.content.find((c: any) => c.type === 'text');
+                    if (textContent && textContent.text) {
+                      try {
+                        const parsed = JSON.parse(textContent.text);
+                        // Handle new structured response
+                        if (parsed.priceComparisons && Array.isArray(parsed.priceComparisons)) {
+                          priceComparisons = parsed.priceComparisons;
+                          hotelName = parsed.hotelName || "Hotel";
+                          hotelLocation = parsed.hotelLocation || "";
+                          checkInDate = parsed.checkInDate || "";
+                          checkOutDate = parsed.checkOutDate || "";
+                        } else {
+                          // Fallback to old format
+                          priceComparisons = parsed;
+                        }
+                      } catch (e) {
+                        console.error("Failed to parse price comparison data from MCP content:", e);
+                      }
+                    }
+                  } else if (Array.isArray(item.output)) {
+                    // Direct array of price comparisons (old format)
+                    priceComparisons = item.output;
+                  }
+                }
+              }
+              
+              if (Array.isArray(priceComparisons) && priceComparisons.length > 0) {
+                // Create price comparison item
+                const priceComparisonItem: PriceComparisonItem = {
+                  type: "price_comparison_list",
+                  id: item.id,
+                  hotel_name: hotelName,
+                  location: hotelLocation,
+                  dates: {
+                    check_in: checkInDate,
+                    check_out: checkOutDate,
+                  },
+                  prices: priceComparisons,
+                };
+                
+                chatMessages.push(priceComparisonItem);
+                setChatMessages([...chatMessages]);
+                console.log("✅ Added PriceComparisonItem to chatMessages with", priceComparisons.length, "price comparisons");
+              } else {
+                console.log("No valid price comparisons found in output");
+              }
+              break;
+            }
+            
+            case "find_destination_by_query": {
+              let destinations = [];
+              if (item.output) {
+                // Try to parse destinations data from different possible formats
+                if (typeof item.output === 'string') {
+                  try {
+                    destinations = JSON.parse(item.output);
+                  } catch (e) {
+                    console.error("Failed to parse destination data from string:", e);
+                  }
+                } else if (item.output && typeof item.output === 'object') {
+                  // Check if output has content array (MCP format)
+                  if (Array.isArray(item.output.content)) {
+                    // Try to parse the text content
+                    const textContent = item.output.content.find((c: any) => c.type === 'text');
+                    if (textContent && textContent.text) {
+                      try {
+                        destinations = JSON.parse(textContent.text);
+                      } catch (e) {
+                        console.error("Failed to parse destination data from MCP content:", e);
+                      }
+                    }
+                  } else if (Array.isArray(item.output)) {
+                    // Direct array of destinations
+                    destinations = item.output;
+                  }
+                }
+              }
+              
+              if (Array.isArray(destinations) && destinations.length > 0) {
+                // Create destination list item
+                const destinationListItem: DestinationListItem = {
+                  type: "destination_list",
+                  id: item.id,
+                  destinations: destinations,
+                };
+                
+                chatMessages.push(destinationListItem);
+                setChatMessages([...chatMessages]);
+                console.log("✅ Added DestinationListItem to chatMessages with", destinations.length, "destinations");
+              } else {
+                console.log("No valid destinations found in output");
+              }
+              break;
+            }
+            
+            case "get_social_media_feed": {
+              let posts = [];
+              if (item.output) {
+                // Try to parse social media feed data from different possible formats
+                if (typeof item.output === 'string') {
+                  try {
+                    posts = JSON.parse(item.output);
+                  } catch (e) {
+                    console.error("Failed to parse social media feed data from string:", e);
+                  }
+                } else if (item.output && typeof item.output === 'object') {
+                  // Check if output has content array (MCP format)
+                  if (Array.isArray(item.output.content)) {
+                    // Try to parse the text content
+                    const textContent = item.output.content.find((c: any) => c.type === 'text');
+                    if (textContent && textContent.text) {
+                      try {
+                        posts = JSON.parse(textContent.text);
+                      } catch (e) {
+                        console.error("Failed to parse social media feed data from MCP content:", e);
+                      }
+                    }
+                  } else if (Array.isArray(item.output)) {
+                    // Direct array of posts
+                    posts = item.output;
+                  }
+                }
+              }
+              
+              if (Array.isArray(posts) && posts.length > 0) {
+                // Create social media feed item
+                const socialMediaFeedItem: SocialMediaFeedItem = {
+                  type: "social_media_feed",
+                  id: item.id,
+                  posts: posts,
+                };
+                
+                chatMessages.push(socialMediaFeedItem);
+                setChatMessages([...chatMessages]);
+                console.log("✅ Added SocialMediaFeedItem to chatMessages with", posts.length, "posts");
+              } else {
+                console.log("No valid social media posts found in output");
+              }
+              break;
+            }
+            
+            default:
+              console.warn(`⚠️ Unhandled MCP tool: ${item.name}`);
+              break;
+          }
         }
+        
+        // Add the item to llmApiMessages for API format
+        // llmApiMessages.push(item); // This line was removed as per the new_code, as llmApiMessages is not defined in this file.
+        // setLlmApiMessages([...llmApiMessages]); // This line was removed as per the new_code, as llmApiMessages is not defined in this file.
         conversationItems.push(item);
         setConversationItems([...conversationItems]);
         if (
-          toolCallMessage &&
-          toolCallMessage.type === "tool_call" &&
-          toolCallMessage.tool_type === "function_call"
+          item &&
+          item.type === "tool_call" &&
+          item.tool_type === "function_call"
         ) {
           // Handle tool call (execute function)
           const toolResult = await handleTool(
-            toolCallMessage.name as keyof typeof functionsMap,
-            toolCallMessage.parsedArguments
+            item.name as keyof typeof functionsMap,
+            item.parsedArguments
           );
 
           // Record tool output
-          toolCallMessage.output = JSON.stringify(toolResult);
+          item.output = JSON.stringify(toolResult);
           setChatMessages([...chatMessages]);
           conversationItems.push({
             type: "function_call_output",
-            call_id: toolCallMessage.call_id,
+            call_id: item.call_id,
             status: "completed",
             output: JSON.stringify(toolResult),
           });
@@ -414,12 +643,12 @@ export const processMessages = async () => {
           await processMessages();
         }
         if (
-          toolCallMessage &&
-          toolCallMessage.type === "tool_call" &&
-          toolCallMessage.tool_type === "mcp_call"
+          item &&
+          item.type === "tool_call" &&
+          item.tool_type === "mcp_call"
         ) {
-          toolCallMessage.output = item.output;
-          toolCallMessage.status = "completed";
+          item.output = item.output;
+          item.status = "completed";
           setChatMessages([...chatMessages]);
         }
         break;
@@ -605,6 +834,7 @@ export const processMessages = async () => {
           setChatMessages([...chatMessages]);
         }
 
+        // MCP tool outputs are now handled in response.output_item.done
         break;
       }
 

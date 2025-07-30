@@ -9,6 +9,10 @@ import McpApproval from "./mcp-approval";
 import { Item, McpApprovalRequestItem } from "@/lib/assistant";
 import LoadingMessage from "./loading-message";
 import useConversationStore from "@/stores/useConversationStore";
+import { CustomChatElementContainer } from "./customChatElements/CustomChatElementContainer";
+import { HotelCarousel } from "./customChatElements/hotelCarousel/HotelCarousel";
+import { PriceComparison } from "./customChatElements/priceComparison/PriceComparison";
+import { DestinationCarousel } from "./customChatElements/destinationCarousel/DestinationCarousel";
 
 interface ChatProps {
   items: Item[];
@@ -73,6 +77,38 @@ const Chat: React.FC<ChatProps> = ({
                     item={item as McpApprovalRequestItem}
                     onRespond={onApprovalResponse}
                   />
+                ) : item.type === "hotel_list" ? (
+                  <HotelCarousel hotels={item.hotels.map(hotel => ({
+                    name: hotel.name,
+                    description: `${hotel.location} - Rating: ${hotel.rating}/5`,
+                    starRating: Math.floor(hotel.rating),
+                    address: hotel.location,
+                    image: hotel.image_url ? [hotel.image_url] : [],
+                    aggregateRating: hotel.rating,
+                    nightlyPrice: `$${hotel.price}`,
+                    amenityFeature: hotel.amenities || []
+                  }))} />
+                ) : item.type === "price_comparison_list" ? (
+                  <PriceComparison 
+                    priceComparisons={item.prices.map(price => ({
+                      siteName: price.provider,
+                      price: price.price,
+                      currency: "USD",
+                      url: price.booking_url,
+                      isDirectBooking: price.provider.toLowerCase().includes("direct")
+                    }))}
+                    hotelName={item.hotel_name}
+                    hotelLocation={item.location}
+                    checkInDate={item.dates.check_in}
+                    checkOutDate={item.dates.check_out}
+                  />
+                ) : item.type === "destination_list" ? (
+                  <DestinationCarousel destinations={item.destinations.map(dest => ({
+                    name: dest.name,
+                    description: dest.description,
+                    image: dest.image_url || "",
+                    activities: dest.activities || []
+                  }))} />
                 ) : null}
               </React.Fragment>
             ))}

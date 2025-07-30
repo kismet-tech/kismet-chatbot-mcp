@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Star, MapPin } from 'lucide-react';
-import { LoyaltyBadgeCycler } from '../shared/LoyaltyBadgeCycler';
+// import { LoyaltyBadgeCycler } from '../shared/LoyaltyBadgeCycler';
 
 // Simple hotel interface (from HotelCarousel)
 interface SimpleHotel {
@@ -229,7 +229,7 @@ export function HotelCard({ theme, hotel, hotelIndex, totalHotels }: HotelCardPr
 
           {/* Star Rating - Minimal */}
           <div className="absolute top-4 left-4 flex items-center gap-1">
-            {[...Array(normalizedData.starRating)].map(
+            {[...Array(Math.max(0, Math.floor(normalizedData.starRating || 0)))].map(
               (_, i) => (
                 <Star key={i} size={12} fill="white" className="text-white" />
               )
@@ -242,10 +242,10 @@ export function HotelCard({ theme, hotel, hotelIndex, totalHotels }: HotelCardPr
           {/* Loyalty Badge Cycler - positioned in upper right corner */}
           {normalizedData.loyaltyAffiliation && normalizedData.loyaltyAffiliation.length > 0 && (
             <div className="absolute top-2 right-6">
-              <LoyaltyBadgeCycler
+              {/* <LoyaltyBadgeCycler
                 loyaltyAffiliations={normalizedData.loyaltyAffiliation}
                 theme={theme}
-              />
+              /> */}
             </div>
           )}
 

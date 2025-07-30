@@ -101,7 +101,7 @@ const useToolsStore = create<StoreState>()(
       setWebSearchEnabled: (enabled) => {
         set({ webSearchEnabled: enabled });
       },
-      functionsEnabled: true,
+      functionsEnabled: false,
       previousFunctionsEnabled: true,
       setFunctionsEnabled: (enabled) => {
         set({ functionsEnabled: enabled });
@@ -141,6 +141,7 @@ const useToolsStore = create<StoreState>()(
       partialize: (state) => ({
         mcpConfig: state.mcpConfig,
         mcpEnabled: state.mcpEnabled,
+        functionsEnabled: state.functionsEnabled,
         tools: state.tools,
         toolsValidationStatus: state.toolsValidationStatus,
         globalApprovalGranted: state.globalApprovalGranted,
