@@ -45,12 +45,10 @@ export function DestinationCarousel({
 
   const handleLearnMore = async () => {
     // TODO: Implement learn more functionality when chat integration is ready
-    console.log(`Learn more about ${destination.name}`);
   };
 
   const handleSelect = async () => {
     // TODO: Implement select functionality when chat integration is ready
-    console.log(`Select ${destination.name}`);
   };
 
   // Defensive: fallback if no destinations

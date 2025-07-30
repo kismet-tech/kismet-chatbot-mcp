@@ -171,6 +171,14 @@ export function HotelCard({ theme, hotel, hotelIndex, totalHotels }: HotelCardPr
     setCurrentImageIndex(0)
   }, [hotel]) // Reset when the entire hotel object changes
 
+  // Ensure we have valid images
+  const validImages = normalizedData.image && normalizedData.image.length > 0 
+    ? normalizedData.image 
+    : ['https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1600&h=1200&fit=crop']; // Fallback image
+
+  // Ensure currentImageIndex is within bounds
+  const safeImageIndex = Math.min(currentImageIndex, validImages.length - 1);
+
   // Inject CSS keyframes for gradient animation
   React.useEffect(() => {
     const style = document.createElement('style')
@@ -188,7 +196,6 @@ export function HotelCard({ theme, hotel, hotelIndex, totalHotels }: HotelCardPr
 
   const handleExplore = async () => {
     // TODO: Implement explore functionality when chat integration is ready
-    console.log(`Explore ${normalizedData.name}`);
   };
 
   return (
@@ -206,7 +213,7 @@ export function HotelCard({ theme, hotel, hotelIndex, totalHotels }: HotelCardPr
         {/* Image Gallery - 16:9 aspect ratio */}
         <div className="relative aspect-[16/9] overflow-hidden">
           <img
-            src={normalizedData.image[currentImageIndex]}
+            src={validImages[safeImageIndex]}
             alt={normalizedData.name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />

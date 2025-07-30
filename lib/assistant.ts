@@ -73,14 +73,31 @@ export interface HotelListItem {
   type: "hotel_list";
   id: string;
   hotels: {
-    id: string;
+    hotel_id: string;
     name: string;
-    location: string;
-    price: number;
-    rating: number;
-    image_url?: string;
-    amenities?: string[];
-    booking_url?: string;
+    description: string;
+    starRating: {
+      ratingValue: string;
+    };
+    address: {
+      addressLocality: string;
+    };
+    image: string[];
+    aggregateRating: {
+      ratingValue: string;
+      reviewCount: string;
+    };
+    nightlyPrice: string;
+    amenityFeature: Array<{
+      name: string;
+    }>;
+    url?: string;
+    telephone?: string;
+    checkinTime?: string;
+    checkoutTime?: string;
+    availability?: boolean;
+    loyaltyAffiliation?: string[];
+    suggestedNextActions?: string[];
   }[];
 }
 
@@ -380,12 +397,10 @@ export const processMessages = async () => {
 
       case "response.output_item.done": {
         const { item } = data || {};
-        console.log("🔧 response.output_item.done", item);
         
         // Handle MCP tool completion
         if (item.type === "mcp_call") {
           console.log("🔧 MCP tool completed:", item.name);
-          console.log("🔧 MCP tool output:", item.output);
           
           // Process tool output based on tool name (like custom-chat-element)
           switch (item.name) {
@@ -598,7 +613,7 @@ export const processMessages = async () => {
                 };
                 
                 chatMessages.push(socialMediaFeedItem);
-                setChatMessages([...chatMessages]);
+          setChatMessages([...chatMessages]);
                 console.log("✅ Added SocialMediaFeedItem to chatMessages with", posts.length, "posts");
               } else {
                 console.log("No valid social media posts found in output");

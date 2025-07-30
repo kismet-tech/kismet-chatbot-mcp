@@ -78,16 +78,23 @@ const Chat: React.FC<ChatProps> = ({
                     onRespond={onApprovalResponse}
                   />
                 ) : item.type === "hotel_list" ? (
-                  <HotelCarousel hotels={item.hotels.map(hotel => ({
-                    name: hotel.name,
-                    description: `${hotel.location} - Rating: ${hotel.rating}/5`,
-                    starRating: Math.floor(hotel.rating),
-                    address: hotel.location,
-                    image: hotel.image_url ? [hotel.image_url] : [],
-                    aggregateRating: hotel.rating,
-                    nightlyPrice: `$${hotel.price}`,
-                    amenityFeature: hotel.amenities || []
-                  }))} />
+                  (() => {
+                    const mappedHotels = item.hotels.map(hotel => ({
+                      name: hotel.name,
+                      description: hotel.description || `${hotel.address?.addressLocality || 'Unknown location'}`,
+                      starRating: Math.floor(parseFloat(hotel.starRating?.ratingValue || '0')),
+                      address: hotel.address?.addressLocality || 'Unknown location',
+                      image: hotel.image || [],
+                      aggregateRating: parseFloat(hotel.aggregateRating?.ratingValue || '0'),
+                      nightlyPrice: hotel.nightlyPrice || 'Price not available',
+                      amenityFeature: hotel.amenityFeature?.map(amenity => amenity.name) || []
+                    }));
+                    return (
+                      <CustomChatElementContainer>
+                        <HotelCarousel hotels={mappedHotels} />
+                      </CustomChatElementContainer>
+                    );
+                  })()
                 ) : item.type === "price_comparison_list" ? (
                   <PriceComparison 
                     priceComparisons={item.prices.map(price => ({
